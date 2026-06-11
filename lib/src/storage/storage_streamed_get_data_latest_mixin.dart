@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'package:storage_sources_core/storage_sources_core.dart';
 
-mixin StorageStreamValueGetDataLatestMixin<T> implements StorageStreamValue<T> {
+@Deprecated('Use StorageStreamedGetDataLatestMixin')
+typedef StorageStreamValueGetDataLatestMixin<T>
+    = StorageStreamedGetDataLatestMixin<T>;
+
+mixin StorageStreamedGetDataLatestMixin<T> implements StorageStreamed<T> {
   @override
   FutureOr<SR<T>> fetchData() async {
     SR<T>? latestOkResponse;
