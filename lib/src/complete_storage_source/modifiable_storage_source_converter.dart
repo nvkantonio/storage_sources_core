@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:storage_sources_core/storage_sources.dart';
+import '../../storage_sources.dart';
 
 class ModifiableStorageSourceConverter<T, ProxyType,
         ProxySource extends ModifiableDataStorageSource<ProxyType>>
