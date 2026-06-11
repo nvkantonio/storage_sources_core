@@ -8,6 +8,8 @@ export 'src/storage_source/storage_source_proxy.dart';
 
 export 'src/utils/storage_source_result.dart';
 
+export 'src/storage/storage_stream_value_get_data_latest_mixin.dart';
+
 export 'src/complete_storage_source/callback_storage_source.dart';
 export 'src/complete_storage_source/network_source.dart';
 export 'src/storage_source/database_storage_source.dart';
