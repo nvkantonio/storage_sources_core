@@ -20,7 +20,7 @@ class CacheOrHeadmostStorageBehavior {
 }
 
 abstract interface class CacheOrHeadmostStorageSources<T>
-    implements StorageSources<T> {
+    implements StorageSources {
   StorageSource<T> get headmostSource;
   ModifiableDataStorageSource<T> get cacheSource;
 }
