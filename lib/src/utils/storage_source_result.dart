@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'storage_source_result_exceptions.dart';
 
 typedef SR<T> = StorageSourceResult<T>;
+typedef FSR<T> = FutureOr<SR<T>>;
 
 typedef OnErrorCallback = dynamic Function(Object e, StackTrace st);
 

@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:storage_sources_core/storage_sources_core.dart';
 
-typedef FSR<T> = FutureOr<SR<T>>;
-
 class StorageSourceConverter<T, ProxyType,
         ProxySource extends StorageSource<ProxyType>>
     implements StorageSourceProxy<T, ProxyType, ProxySource> {
