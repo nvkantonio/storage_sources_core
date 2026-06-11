@@ -1,4 +1,4 @@
-import '../../storage_sources_core.dart';
+import '../../storage_sources.dart';
 
 abstract interface class DatabaseStorageSource<T>
-    implements ModifiableDataStorageSource<T> {}
+    implements CacheStorageSource<T> {}

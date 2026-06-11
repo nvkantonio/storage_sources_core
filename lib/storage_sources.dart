@@ -4,6 +4,7 @@ export 'storage_sources_core.dart';
 
 export 'src/complete_storage_source/callback_storage_source.dart';
 export 'src/complete_storage_source/network_source.dart';
+export 'src/storage_source/cache_storage_source.dart';
 export 'src/storage_source/database_storage_source.dart';
 
 export 'src/complete_storage/single_source_storage.dart';
