@@ -60,7 +60,7 @@ void main() {
       expect(await res4, testString4);
     });
 
-    test('Test CallbackCompleter', () async {
+    test('Test CallbackCompleter exceptions handle. Must not throw', () async {
       final callbackCompleter = CallbackCompleter<String>();
 
       final res1 = Future(
@@ -75,19 +75,21 @@ void main() {
       expect(await res2, testString);
     });
 
-    test('Test CallbackCompleter', () async {
+    test(
+        'Test CallbackCompleter exceptions handle. Must throw and .catchError must replace exception',
+        () async {
       final callbackCompleter = CallbackCompleter<String>();
 
-      final res3 = Future(
+      final res1 = Future(
               () => callbackCompleter.run(() => futureCauseError(testString)))
           .catchError((e, st) => e);
 
-      final res4 = Future(
+      final res2 = Future(
               () => callbackCompleter.run(() => futureCauseError(testString2)))
           .catchError((e, st) => e);
 
-      expect(await res3, '$testStringError:$testString');
-      expect(await res4, '$testStringError:$testString');
+      expect(await res1, '$testStringError:$testString');
+      expect(await res2, '$testStringError:$testString');
     });
   });
 }

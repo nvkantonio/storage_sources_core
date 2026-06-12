@@ -17,25 +17,21 @@ class CallbackCompleter<T> {
     final completer = Completer<T>();
     _completer = completer;
 
-    T? result;
-    Object? error;
-    StackTrace? stackTrace;
+    Future(
+      () async {
+        try {
+          final res = await callback();
+          completer.complete(res);
+        } catch (e, st) {
+          completer.completeError(e, st);
+        }
+      },
+    )..whenComplete(() {
+        return _completer = null;
+      });
 
-    try {
-      final res = await callback();
-      result = res;
-      return res;
-    } catch (e, st) {
-      error = e;
-      stackTrace = st;
-      rethrow;
-    } finally {
-      if (error != null) {
-        completer.completeError(error, stackTrace);
-      } else {
-        completer.complete(result);
-      }
-      _completer = null;
-    }
+    return completer.future;
+
+    // TODO
   }
 }
