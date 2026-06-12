@@ -99,29 +99,34 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
         cacheSourceResponse != null &&
         cacheSourceResponse.isError;
 
-    final doRunUpdate = behavior.updateCacheIfNotEqual &&
+    final doTryUpdate = behavior.updateCacheIfNotEqual &&
         cacheSourceResponse != null &&
         headmostSourceResponse != null &&
         headmostSourceResponse.isOk;
 
-    try {
-      if (doRunDelete) {
+    if (doRunDelete) {
+      try {
         await cacheSource.delete();
+      } catch (e, st) {
+        yield OtherErrorStorageSourceResult(e, stackTrace: st);
+        return;
       }
+    }
 
-      if (doRunUpdate) {
-        if (headmostSourceResponse
-            case OkStorageSourceResult(
-              value: final headmostValue,
-            )) {
-          if (!cacheSourceResponse.isOk ||
-              cacheSourceResponse.value != headmostValue) {
-            await cacheSource.update(headmostValue);
-          }
+    if (doTryUpdate) {
+      try {
+        final headmostValue = headmostSourceResponse.value;
+
+        final doUpdate = !cacheSourceResponse.isOk ||
+            cacheSourceResponse.value != headmostValue;
+
+        if (doUpdate) {
+          await cacheSource.update(headmostValue);
         }
+      } catch (e, st) {
+        yield OtherErrorStorageSourceResult(e, stackTrace: st);
+        return;
       }
-    } catch (e, st) {
-      yield OtherErrorStorageSourceResult(e, stackTrace: st);
     }
   }
 
