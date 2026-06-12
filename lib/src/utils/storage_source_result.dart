@@ -8,7 +8,7 @@ import 'storage_source_result_exceptions.dart';
 typedef SR<T> = StorageSourceResult<T>;
 typedef FSR<T> = FutureOr<SR<T>>;
 
-typedef OnErrorCallback = dynamic Function(Object e, StackTrace st);
+typedef OnErrorCallback = Function(Object e, StackTrace st);
 
 enum StorageSourceResultType { ok, error, undefined }
 
@@ -111,7 +111,7 @@ sealed class StorageSourceResult<T>
 
       if (callback is R) {
         return callback;
-      } else {
+      } else if (callback != null) {
         dev.log(
           'Invalid use of "onErrorCallback" with type "${callback.runtimeType}" in StorageSourceResult. Expected type is $R',
         );
