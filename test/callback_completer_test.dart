@@ -14,6 +14,11 @@ void main() {
 
   const testStringError = 'error';
 
+  const testArg1 = 'arg1';
+  const testArg2 = 'arg2';
+  const testArg3 = 'arg3';
+  const testArg4 = 'arg4';
+
   Future<String> futureTestString(String testString) => Future<String>.delayed(
         Duration(milliseconds: 50),
         () => testString,
@@ -31,16 +36,40 @@ void main() {
     test('Test CallbackCompleter runner. No args', () async {
       final callbackCompleter = CallbackCompleter<String>();
 
+      expect(callbackCompleter.isInProgress, false);
+
       expect(
           await callbackCompleter
               .run(() async => futureTestString(testString1)),
           testString1);
 
+      expect(callbackCompleter.isInProgress, false);
+
       expect(await callbackCompleter.run(() => futureTestString(testString2)),
           testString2);
+
+      expect(callbackCompleter.isInProgress, false);
     });
 
-    test('Test CallbackCompleter multiple call. No args', () async {
+    test('Test CallbackCompleter simultaneous calls. No args', () async {
+      final callbackCompleter = CallbackCompleter<String>();
+
+      final res1 = Future(
+          () => callbackCompleter.run(() => futureTestString(testString1)));
+      final res2 = Future(
+          () => callbackCompleter.run(() => futureTestString(testString2)));
+
+      await Future.delayed(Duration(milliseconds: 1));
+      expect(callbackCompleter.isInProgress, true);
+
+      expect(await res1, testString1);
+      expect(callbackCompleter.isInProgress, false);
+
+      expect(await res2, testString1);
+      expect(callbackCompleter.isInProgress, false);
+    });
+
+    test('Test CallbackCompleter mixing simultaneous calls. No args', () async {
       final callbackCompleter = CallbackCompleter<String>();
 
       final res1 = Future(
@@ -50,15 +79,28 @@ void main() {
       final res3 = Future(
           () => callbackCompleter.run(() => futureTestString(testString3)));
 
+      await Future.delayed(Duration(milliseconds: 1));
+      expect(callbackCompleter.isInProgress, true);
+
       expect(await res1, testString1);
+
+      expect(callbackCompleter.isInProgress, false);
 
       final res4 = Future(
           () => callbackCompleter.run(() => futureTestString(testString4)));
 
+      await Future.delayed(Duration(milliseconds: 1));
+      expect(callbackCompleter.isInProgress, true);
+
       expect(await res2, testString1);
+      expect(callbackCompleter.isInProgress, true);
+
       expect(await res3, testString1);
+      expect(callbackCompleter.isInProgress, true);
 
       expect(await res4, testString4);
+
+      expect(callbackCompleter.isInProgress, false);
     });
 
     test('Test CallbackCompleter exceptions handle. No args', () async {
@@ -72,8 +114,13 @@ void main() {
               () => callbackCompleter.run(() => futureTestString(testString2)))
           .catchError((e, st) => '$e:$testString2');
 
+      await Future.delayed(Duration(milliseconds: 1));
+      expect(callbackCompleter.isInProgress, true);
+
       expect(await res1, testString1);
       expect(await res2, testString1);
+
+      expect(callbackCompleter.isInProgress, false);
     });
 
     test(
@@ -89,34 +136,60 @@ void main() {
               () => callbackCompleter.run(() => futureCauseError(testString2)))
           .catchError((e, st) => e);
 
+      await Future.delayed(Duration(milliseconds: 1));
+      expect(callbackCompleter.isInProgress, true);
+
       expect(await res1, '$testStringError:$testString1');
       expect(await res2, '$testStringError:$testString1');
+
+      expect(callbackCompleter.isInProgress, false);
     });
   });
 
   group(
     'A group of test of CallbackCompleter with different equality arg',
     () {
-      const testArg1 = 'arg1';
-      const testArg2 = 'arg2';
-      const testArg3 = 'arg3';
-      const testArg4 = 'arg4';
-
       test('Test CallbackCompleter runner. Unequal args', () async {
         final callbackCompleter = CallbackCompleter<String>();
+
+        expect(callbackCompleter.isInProgress, false);
 
         expect(
             await callbackCompleter.run(
                 () async => futureTestString(testString1), testArg1),
             testString1);
 
+        expect(callbackCompleter.isInProgress, false);
+
         expect(
             await callbackCompleter.run(
                 () => futureTestString(testString2), testArg2),
             testString2);
+
+        expect(callbackCompleter.isInProgress, false);
       });
 
-      test('Test CallbackCompleter multiple call. All args unequal', () async {
+      test('Test CallbackCompleter simultaneous calls. All args unequal',
+          () async {
+        final callbackCompleter = CallbackCompleter<String>();
+
+        final res1 = Future(() => callbackCompleter.run(
+            () => futureTestString(testString1), testArg1));
+        final res2 = Future(() => callbackCompleter.run(
+            () => futureTestString(testString2), testArg2));
+
+        await Future.delayed(Duration(milliseconds: 1));
+        expect(callbackCompleter.isInProgress, true);
+
+        expect(await res1, testString1);
+        expect(callbackCompleter.isInProgress, true);
+
+        expect(await res2, testString2);
+        expect(callbackCompleter.isInProgress, false);
+      });
+
+      test('Test CallbackCompleter mixing simultaneous calls. All args unequal',
+          () async {
         final callbackCompleter = CallbackCompleter<String>();
 
         final res1 = Future(() => callbackCompleter.run(
@@ -126,19 +199,28 @@ void main() {
         final res3 = Future(() => callbackCompleter.run(
             () => futureTestString(testString3), testArg3));
 
+        await Future.delayed(Duration(milliseconds: 1));
+        expect(callbackCompleter.isInProgress, true);
+
         expect(await res1, testString1);
+        expect(callbackCompleter.isInProgress, true);
 
         final res4 = Future(() => callbackCompleter.run(
             () => futureTestString(testString4), testArg4));
 
         expect(await res2, testString2);
+        expect(callbackCompleter.isInProgress, true);
+
         expect(await res3, testString3);
+        expect(callbackCompleter.isInProgress, true);
 
         expect(await res4, testString4);
+
+        expect(callbackCompleter.isInProgress, false);
       });
 
       test(
-          'Test CallbackCompleter multiple call. Some args unequal. Queuing unequal args result',
+          'Test CallbackCompleter mixing simultaneous calls. Some args unequal. Queuing unequal args result',
           () async {
         final callbackCompleter = CallbackCompleter<String>();
 
@@ -149,19 +231,27 @@ void main() {
         final res3 = Future(() => callbackCompleter.run(
             () => futureTestString(testString3), testArg2));
 
+        await Future.delayed(Duration(milliseconds: 1));
+        expect(callbackCompleter.isInProgress, true);
+
         expect(await res1, testString1);
+        expect(callbackCompleter.isInProgress, true);
 
         final res4 = Future(() => callbackCompleter.run(
             () => futureTestString(testString4), testArg2));
 
         expect(await res2, testString1);
+        expect(callbackCompleter.isInProgress, true);
+
         expect(await res3, testString3);
+        expect(callbackCompleter.isInProgress, false);
 
         expect(await res4, testString3);
+        expect(callbackCompleter.isInProgress, false);
       });
 
       test(
-          'Test CallbackCompleter multiple call. Some args unequal. Queuing equal args result',
+          'Test CallbackCompleter mixing simultaneous calls. Some args unequal. Queuing equal args result',
           () async {
         final callbackCompleter = CallbackCompleter<String>();
 
@@ -172,16 +262,26 @@ void main() {
         final res3 = Future(() => callbackCompleter.run(
             () => futureTestString(testString3), testArg2));
 
+        await Future.delayed(Duration(milliseconds: 1));
+        expect(callbackCompleter.isInProgress, true);
+
         expect(await res3, testString3);
+        expect(callbackCompleter.isInProgress, false);
 
         final res4 = Future(() => callbackCompleter.run(
             () => futureTestString(testString4), testArg2));
 
+        await Future.delayed(Duration(milliseconds: 1));
+        expect(callbackCompleter.isInProgress, true);
+
         expect(await res1, testString1);
+        expect(callbackCompleter.isInProgress, true);
+
         expect(await res2, testString1);
-        expect(await res3, testString3);
+        expect(callbackCompleter.isInProgress, true);
 
         expect(await res4, testString4);
+        expect(callbackCompleter.isInProgress, false);
       });
 
       test('Test CallbackCompleter exceptions handle. Unequal args', () async {
