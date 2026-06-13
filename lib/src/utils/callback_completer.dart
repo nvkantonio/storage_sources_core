@@ -20,30 +20,31 @@ final class _CompleterWithArgument<T> {
 class CallbackCompleter<T> {
   CallbackCompleter();
 
-  _CompleterWithArgument<T>? _completerWithArg;
+  _CompleterWithArgument? _completerWithArg;
 
-  Completer<T>? get _completer => _completerWithArg?.completer;
+  Completer? get _completer => _completerWithArg?.completer;
 
   bool get isInProgress => _completer != null && !_completer!.isCompleted;
 
-  Future<T>? get future => _completer?.future;
+  Future? get future => _completer?.future;
 
-  Future<T> run(Future<T> Function() callback,
+  Future<R> run<R extends T>(Future<R> Function() callback,
       [dynamic equalityArg = const NoArgument()]) {
     final currentCompleterWithArg = _completerWithArg;
 
     if (currentCompleterWithArg == null) {
-      final newCompleterWithArg = _CompleterWithArgument<T>(equalityArg);
+      final newCompleterWithArg = _CompleterWithArgument<R>(equalityArg);
       _completerWithArg = newCompleterWithArg;
 
       return _runCompleter(callback, newCompleterWithArg);
     }
 
-    if (equalityArg == currentCompleterWithArg.equalityArg) {
+    if (currentCompleterWithArg is _CompleterWithArgument<R> &&
+        equalityArg == currentCompleterWithArg.equalityArg) {
       return currentCompleterWithArg.completer.future;
     }
 
-    final newCompleterWithArg = _CompleterWithArgument<T>(equalityArg);
+    final newCompleterWithArg = _CompleterWithArgument<R>(equalityArg);
     _completerWithArg = newCompleterWithArg;
 
     final currentCompleterFuture =
@@ -56,8 +57,8 @@ class CallbackCompleter<T> {
     );
   }
 
-  Future<T> _runCompleter(Future<T> Function() callback,
-      _CompleterWithArgument<T> completerWithArg) {
+  Future<R> _runCompleter<R extends T>(Future<R> Function() callback,
+      _CompleterWithArgument<R> completerWithArg) {
     final completer = completerWithArg.completer;
 
     Future(
