@@ -28,7 +28,7 @@ class CallbackCompleter<T> {
 
   Future? get future => _completer?.future;
 
-  Future<R> run<R extends T>(Future<R> Function() callback,
+  Future<R> run<R extends T>(FutureOr<R> Function() callback,
       [dynamic equalityArg = const NoArgument()]) {
     final currentCompleterWithArg = _completerWithArg;
 
@@ -57,7 +57,7 @@ class CallbackCompleter<T> {
     );
   }
 
-  Future<R> _runCompleter<R extends T>(Future<R> Function() callback,
+  Future<R> _runCompleter<R extends T>(FutureOr<R> Function() callback,
       _CompleterWithArgument<R> completerWithArg) {
     final completer = completerWithArg.completer;
 
