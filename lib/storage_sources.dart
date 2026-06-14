@@ -10,6 +10,8 @@ export 'src/storage_source/database_storage_source.dart';
 export 'src/complete_storage/single_source_storage.dart';
 export 'src/complete_storage/cache_or_headmost_storage.dart';
 
+export 'src/complete_storage_source/memory_cache_storage_source.dart';
+
 export 'src/complete_storage/storage_converter.dart';
 export 'src/complete_storage_source/storage_source_converter.dart';
 export 'src/complete_storage_source/modifiable_storage_source_converter.dart';
