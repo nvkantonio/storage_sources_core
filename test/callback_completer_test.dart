@@ -40,7 +40,7 @@ void main() {
 
       expect(
         await callbackCompleter.run(
-          () async => futureTestString(testString1),
+          () => futureTestString(testString1),
         ),
         testString1,
       );
@@ -188,7 +188,7 @@ void main() {
 
         expect(
           await callbackCompleter.run(
-            () async => futureTestString('$testString1$testArg1'),
+            () => futureTestString('$testString1$testArg1'),
             equalityArg: testArg1,
           ),
           '$testString1$testArg1',
@@ -378,27 +378,6 @@ void main() {
         expect(callbackCompleter.isInProgress, false);
       });
 
-      test('Test CallbackCompleter exceptions handle. Unequal args', () async {
-        final callbackCompleter = CallbackCompleter<String>();
-
-        final res1arg1 = Future(
-          () => callbackCompleter.run(
-            () => futureTestString('$testString1$testArg1'),
-            equalityArg: testArg1,
-          ),
-        ).catchError((e) => '$e:$testString1');
-
-        final res2arg2 = Future(
-          () => callbackCompleter.run(
-            () => futureTestString('$testString2$testArg2'),
-            equalityArg: testArg2,
-          ),
-        ).catchError((e) => '$e:$testString2');
-
-        expect(await res1arg1, '$testString1$testArg1');
-        expect(await res2arg2, '$testString2$testArg2');
-      });
-
       test(
           'Test CallbackCompleter exceptions handle. Unequal args. Must throw and .catchError must replace exception',
           () async {
@@ -445,14 +424,14 @@ void main() {
 
         expect(
           await callbackCompleter.run(
-            () async => futureTestString(testString1),
+            () => futureTestString(testString1),
           ),
           testString1,
         );
 
         expect(
           await callbackCompleter.run<String>(
-            () async => futureTestString(testString2),
+            () => futureTestString(testString2),
           ),
           testString2,
         );
