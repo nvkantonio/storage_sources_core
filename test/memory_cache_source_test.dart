@@ -1,5 +1,5 @@
-import 'package:storage_sources_core/storage_sources.dart';
 import 'package:test/test.dart';
+import 'package:storage_sources_core/storage_sources.dart';
 
 typedef OkResponse<T> = OkStorageSourceResult<T>;
 typedef UndefResponse<T> = UndefinedStorageSourceResult<T>;
