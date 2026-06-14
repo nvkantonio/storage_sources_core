@@ -7,17 +7,17 @@ typedef SrUndef<T> = UndefinedStorageSourceResult<T>;
 typedef SrError<T> = ErrorStorageSourceResult<T>;
 
 void main() {
-  const testString1 = '1';
-  const testString2 = '2';
-  const testString3 = '3';
-  const testString4 = '4';
+  const testString1 = '(data1)';
+  const testString2 = '(data2)';
+  const testString3 = '(data3)';
+  const testString4 = '(data4)';
 
-  const testStringError = 'error';
+  const testStringError = '(error)';
 
-  const testArg1 = 'arg1';
-  const testArg2 = 'arg2';
-  const testArg3 = 'arg3';
-  const testArg4 = 'arg4';
+  const testArg1 = '(arg1)';
+  const testArg2 = '(arg2)';
+  const testArg3 = '(arg3)';
+  const testArg4 = '(arg4)';
 
   Future<String> futureTestString(String testString) => Future<String>.delayed(
         Duration(milliseconds: 50),
@@ -39,14 +39,20 @@ void main() {
       expect(callbackCompleter.isInProgress, false);
 
       expect(
-          await callbackCompleter
-              .run(() async => futureTestString(testString1)),
-          testString1);
+        await callbackCompleter.run(
+          () async => futureTestString(testString1),
+        ),
+        testString1,
+      );
 
       expect(callbackCompleter.isInProgress, false);
 
-      expect(await callbackCompleter.run(() => futureTestString(testString2)),
-          testString2);
+      expect(
+        await callbackCompleter.run(
+          () => futureTestString(testString2),
+        ),
+        testString2,
+      );
 
       expect(callbackCompleter.isInProgress, false);
     });
@@ -55,9 +61,15 @@ void main() {
       final callbackCompleter = CallbackCompleter<String>();
 
       final res1 = Future(
-          () => callbackCompleter.run(() => futureTestString(testString1)));
+        () => callbackCompleter.run(
+          () => futureTestString(testString1),
+        ),
+      );
       final res2 = Future(
-          () => callbackCompleter.run(() => futureTestString(testString2)));
+        () => callbackCompleter.run(
+          () => futureTestString(testString2),
+        ),
+      );
 
       await Future.delayed(Duration(milliseconds: 1));
       expect(callbackCompleter.isInProgress, true);
@@ -73,11 +85,20 @@ void main() {
       final callbackCompleter = CallbackCompleter<String>();
 
       final res1 = Future(
-          () => callbackCompleter.run(() => futureTestString(testString1)));
+        () => callbackCompleter.run(
+          () => futureTestString(testString1),
+        ),
+      );
       final res2 = Future(
-          () => callbackCompleter.run(() => futureTestString(testString2)));
+        () => callbackCompleter.run(
+          () => futureTestString(testString2),
+        ),
+      );
       final res3 = Future(
-          () => callbackCompleter.run(() => futureTestString(testString3)));
+        () => callbackCompleter.run(
+          () => futureTestString(testString3),
+        ),
+      );
 
       await Future.delayed(Duration(milliseconds: 1));
       expect(callbackCompleter.isInProgress, true);
@@ -87,7 +108,10 @@ void main() {
       expect(callbackCompleter.isInProgress, false);
 
       final res4 = Future(
-          () => callbackCompleter.run(() => futureTestString(testString4)));
+        () => callbackCompleter.run(
+          () => futureTestString(testString4),
+        ),
+      );
 
       await Future.delayed(Duration(milliseconds: 1));
       expect(callbackCompleter.isInProgress, true);
@@ -107,12 +131,16 @@ void main() {
       final callbackCompleter = CallbackCompleter<String>();
 
       final res1 = Future(
-              () => callbackCompleter.run(() => futureTestString(testString1)))
-          .catchError((e, st) => '$e:$testString1');
+        () => callbackCompleter.run(
+          () => futureTestString(testString1),
+        ),
+      ).catchError((e, st) => '$e:$testString1');
 
       final res2 = Future(
-              () => callbackCompleter.run(() => futureTestString(testString2)))
-          .catchError((e, st) => '$e:$testString2');
+        () => callbackCompleter.run(
+          () => futureTestString(testString2),
+        ),
+      ).catchError((e, st) => '$e:$testString2');
 
       await Future.delayed(Duration(milliseconds: 1));
       expect(callbackCompleter.isInProgress, true);
@@ -128,13 +156,17 @@ void main() {
         () async {
       final callbackCompleter = CallbackCompleter<String>();
 
-      final res1 = Future(() =>
-              callbackCompleter.run(() => futureCauseErrorString(testString1)))
-          .catchError((e, st) => e);
+      final res1 = Future(
+        () => callbackCompleter.run(
+          () => futureCauseErrorString(testString1),
+        ),
+      ).catchError((e, st) => e);
 
-      final res2 = Future(() =>
-              callbackCompleter.run(() => futureCauseErrorString(testString2)))
-          .catchError((e, st) => e);
+      final res2 = Future(
+        () => callbackCompleter.run(
+          () => futureCauseErrorString(testString2),
+        ),
+      ).catchError((e, st) => e);
 
       await Future.delayed(Duration(milliseconds: 1));
       expect(callbackCompleter.isInProgress, true);
@@ -155,17 +187,22 @@ void main() {
         expect(callbackCompleter.isInProgress, false);
 
         expect(
-            await callbackCompleter.run(
-                () async => futureTestString(testString1),
-                equalityArg: testArg1),
-            testString1);
+          await callbackCompleter.run(
+            () async => futureTestString('$testString1$testArg1'),
+            equalityArg: testArg1,
+          ),
+          '$testString1$testArg1',
+        );
 
         expect(callbackCompleter.isInProgress, false);
 
         expect(
-            await callbackCompleter.run(() => futureTestString(testString2),
-                equalityArg: testArg2),
-            testString2);
+          await callbackCompleter.run(
+            () => futureTestString('$testString1$testArg2'),
+            equalityArg: testArg2,
+          ),
+          '$testString1$testArg2',
+        );
 
         expect(callbackCompleter.isInProgress, false);
       });
@@ -174,18 +211,26 @@ void main() {
           () async {
         final callbackCompleter = CallbackCompleter<String>();
 
-        final res1 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString1), equalityArg: testArg1));
-        final res2 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString2), equalityArg: testArg2));
+        final res1 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString1$testArg1'),
+            equalityArg: testArg1,
+          ),
+        );
+        final res2 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString2$testArg2'),
+            equalityArg: testArg2,
+          ),
+        );
 
         await Future.delayed(Duration(milliseconds: 1));
         expect(callbackCompleter.isInProgress, true);
 
-        expect(await res1, testString1);
+        expect(await res1, '$testString1$testArg1');
         expect(callbackCompleter.isInProgress, true);
 
-        expect(await res2, testString2);
+        expect(await res2, '$testString2$testArg2');
         expect(callbackCompleter.isInProgress, false);
       });
 
@@ -193,29 +238,45 @@ void main() {
           () async {
         final callbackCompleter = CallbackCompleter<String>();
 
-        final res1 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString1), equalityArg: testArg1));
-        final res2 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString2), equalityArg: testArg2));
-        final res3 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString3), equalityArg: testArg3));
+        final res1 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString1$testArg1'),
+            equalityArg: testArg1,
+          ),
+        );
+        final res2 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString2$testArg2'),
+            equalityArg: testArg2,
+          ),
+        );
+        final res3 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString3$testArg3'),
+            equalityArg: testArg3,
+          ),
+        );
 
         await Future.delayed(Duration(milliseconds: 1));
         expect(callbackCompleter.isInProgress, true);
 
-        expect(await res1, testString1);
+        expect(await res1, '$testString1$testArg1');
         expect(callbackCompleter.isInProgress, true);
 
-        final res4 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString4), equalityArg: testArg4));
+        final res4 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString4$testArg4'),
+            equalityArg: testArg4,
+          ),
+        );
 
-        expect(await res2, testString2);
+        expect(await res2, '$testString2$testArg2');
         expect(callbackCompleter.isInProgress, true);
 
-        expect(await res3, testString3);
+        expect(await res3, '$testString3$testArg3');
         expect(callbackCompleter.isInProgress, true);
 
-        expect(await res4, testString4);
+        expect(await res4, '$testString4$testArg4');
 
         expect(callbackCompleter.isInProgress, false);
       });
@@ -225,29 +286,45 @@ void main() {
           () async {
         final callbackCompleter = CallbackCompleter<String>();
 
-        final res1 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString1), equalityArg: testArg1));
-        final res2 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString2), equalityArg: testArg1));
-        final res3 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString3), equalityArg: testArg2));
+        final res1 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString1$testArg1'),
+            equalityArg: testArg1,
+          ),
+        );
+        final res2 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString2$testArg1'),
+            equalityArg: testArg1,
+          ),
+        );
+        final res3 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString3$testArg2'),
+            equalityArg: testArg2,
+          ),
+        );
 
         await Future.delayed(Duration(milliseconds: 1));
         expect(callbackCompleter.isInProgress, true);
 
-        expect(await res1, testString1);
+        expect(await res1, '$testString1$testArg1');
         expect(callbackCompleter.isInProgress, true);
 
-        final res4 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString4), equalityArg: testArg2));
+        final res4 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString4$testArg2'),
+            equalityArg: testArg2,
+          ),
+        );
 
-        expect(await res2, testString1);
+        expect(await res2, '$testString1$testArg1');
         expect(callbackCompleter.isInProgress, true);
 
-        expect(await res3, testString3);
+        expect(await res3, '$testString3$testArg2');
         expect(callbackCompleter.isInProgress, false);
 
-        expect(await res4, testString3);
+        expect(await res4, '$testString3$testArg2');
         expect(callbackCompleter.isInProgress, false);
       });
 
@@ -256,48 +333,70 @@ void main() {
           () async {
         final callbackCompleter = CallbackCompleter<String>();
 
-        final res1 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString1), equalityArg: testArg1));
-        final res2 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString2), equalityArg: testArg1));
-        final res3 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString3), equalityArg: testArg2));
+        final res1 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString1$testArg1'),
+            equalityArg: testArg1,
+          ),
+        );
+        final res2 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString2$testArg1'),
+            equalityArg: testArg1,
+          ),
+        );
+        final res3 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString3$testArg2'),
+            equalityArg: testArg2,
+          ),
+        );
 
         await Future.delayed(Duration(milliseconds: 1));
         expect(callbackCompleter.isInProgress, true);
 
-        expect(await res3, testString3);
+        expect(await res3, '$testString3$testArg2');
         expect(callbackCompleter.isInProgress, false);
 
-        final res4 = Future(() => callbackCompleter
-            .run(() => futureTestString(testString4), equalityArg: testArg2));
+        final res4 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString4$testArg2'),
+            equalityArg: testArg2,
+          ),
+        );
 
         await Future.delayed(Duration(milliseconds: 1));
         expect(callbackCompleter.isInProgress, true);
 
-        expect(await res1, testString1);
+        expect(await res1, '$testString1$testArg1');
         expect(callbackCompleter.isInProgress, true);
 
-        expect(await res2, testString1);
+        expect(await res2, '$testString1$testArg1');
         expect(callbackCompleter.isInProgress, true);
 
-        expect(await res4, testString4);
+        expect(await res4, '$testString4$testArg2');
         expect(callbackCompleter.isInProgress, false);
       });
 
       test('Test CallbackCompleter exceptions handle. Unequal args', () async {
         final callbackCompleter = CallbackCompleter<String>();
 
-        final res1 = Future(() => callbackCompleter.run(
-            () => futureTestString(testString1),
-            equalityArg: testArg1)).catchError((e, st) => '$e:$testString1');
+        final res1 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString1$testArg1'),
+            equalityArg: testArg1,
+          ),
+        ).catchError((e) => '$e:$testString1');
 
-        final res2 = Future(() => callbackCompleter.run(
-            () => futureTestString(testString2),
-            equalityArg: testArg2)).catchError((e, st) => '$e:$testString2');
+        final res2 = Future(
+          () => callbackCompleter.run(
+            () => futureTestString('$testString2$testArg2'),
+            equalityArg: testArg2,
+          ),
+        ).catchError((e) => '$e:$testString2');
 
-        expect(await res1, testString1);
-        expect(await res2, testString2);
+        expect(await res1, '$testString1$testArg1');
+        expect(await res2, '$testString2$testArg2');
       });
 
       test(
@@ -305,16 +404,22 @@ void main() {
           () async {
         final callbackCompleter = CallbackCompleter<String>();
 
-        final res1 = Future(() => callbackCompleter.run(
-            () => futureCauseErrorString(testString1),
-            equalityArg: testArg1)).catchError((e, st) => e);
+        final res1 = Future(
+          () => callbackCompleter.run(
+            () => futureCauseErrorString('$testString1$testArg1'),
+            equalityArg: testArg1,
+          ),
+        ).catchError((e) => e);
 
-        final res2 = Future(() => callbackCompleter.run(
-            () => futureCauseErrorString(testString2),
-            equalityArg: testArg2)).catchError((e, st) => e);
+        final res2 = Future(
+          () => callbackCompleter.run(
+            () => futureCauseErrorString('$testString2$testArg2'),
+            equalityArg: testArg2,
+          ),
+        ).catchError((e) => e);
 
-        expect(await res1, '$testStringError:$testString1');
-        expect(await res2, '$testStringError:$testString2');
+        expect(await res1, '$testStringError:$testString1$testArg1');
+        expect(await res2, '$testStringError:$testString2$testArg2');
       });
     },
   );
@@ -339,16 +444,25 @@ void main() {
         final callbackCompleter = CallbackCompleter();
 
         expect(
-            await callbackCompleter
-                .run(() async => futureTestString(testString1)),
-            testString1);
+          await callbackCompleter.run(
+            () async => futureTestString(testString1),
+          ),
+          testString1,
+        );
 
         expect(
-            await callbackCompleter
-                .run<String>(() async => futureTestString(testString2)),
-            testString2);
+          await callbackCompleter.run<String>(
+            () async => futureTestString(testString2),
+          ),
+          testString2,
+        );
 
-        expect(await callbackCompleter.run<int>(() => futureTest(3)), 3);
+        expect(
+          await callbackCompleter.run<int>(
+            () => futureTest(3),
+          ),
+          3,
+        );
       });
 
       test(
@@ -356,12 +470,21 @@ void main() {
           () async {
         final callbackCompleter = CallbackCompleter();
 
-        final res1 = Future(() =>
-            callbackCompleter.run<String>(() => futureTestString(testString1)));
+        final res1 = Future(
+          () => callbackCompleter.run<String>(
+            () => futureTestString(testString1),
+          ),
+        );
         final res2 = Future(
-            () => callbackCompleter.run(() => futureTestString(testString2)));
-        final res3 = Future(() =>
-            callbackCompleter.run<String>(() => futureTestString(testString2)));
+          () => callbackCompleter.run(
+            () => futureTestString(testString2),
+          ),
+        );
+        final res3 = Future(
+          () => callbackCompleter.run<String>(
+            () => futureTestString(testString2),
+          ),
+        );
 
         await Future.delayed(Duration(milliseconds: 1));
         expect(callbackCompleter.isInProgress, true);
@@ -378,12 +501,21 @@ void main() {
           () async {
         final callbackCompleter = CallbackCompleter();
 
-        final res1 = Future(() => callbackCompleter
-            .run<dynamic>(() => futureTest<dynamic>(testString1)));
-        final res2 = Future(() => callbackCompleter
-            .run<String>(() => futureTest<String>(testString2)));
-        final res3 = Future(() => callbackCompleter
-            .run<dynamic>(() => futureTest<String>(testString2)));
+        final res1 = Future(
+          () => callbackCompleter.run<dynamic>(
+            () => futureTest<dynamic>(testString1),
+          ),
+        );
+        final res2 = Future(
+          () => callbackCompleter.run<String>(
+            () => futureTest<String>(testString2),
+          ),
+        );
+        final res3 = Future(
+          () => callbackCompleter.run<dynamic>(
+            () => futureTest<String>(testString2),
+          ),
+        );
 
         await Future.delayed(Duration(milliseconds: 1));
         expect(callbackCompleter.isInProgress, true);
@@ -407,13 +539,17 @@ void main() {
           () async {
         final callbackCompleter = CallbackCompleter();
 
-        final res1 = Future(() => callbackCompleter
-                .run<dynamic>(() => futureTest<dynamic>(testString1)))
-            .catchError((e, st) => '$e:$testString1');
+        final res1 = Future(
+          () => callbackCompleter.run<dynamic>(
+            () => futureTest<dynamic>(testString1),
+          ),
+        ).catchError((e) => '$e:$testString1');
 
-        final res2 = Future(() => callbackCompleter
-                .run<String>(() => futureTest<String>(testString2)))
-            .catchError((e, st) => '$e:$testString2');
+        final res2 = Future(
+          () => callbackCompleter.run<String>(
+            () => futureTest<String>(testString2),
+          ),
+        ).catchError((e) => '$e:$testString2');
 
         expect(await res1, testString1);
         expect(await res2, testString2);
@@ -424,13 +560,17 @@ void main() {
           () async {
         final callbackCompleter = CallbackCompleter();
 
-        final res1 = Future(() => callbackCompleter
-                .run<dynamic>(() => futureCauseError<dynamic>(testString1)))
-            .catchError((e, st) => e);
+        final res1 = Future(
+          () => callbackCompleter.run<dynamic>(
+            () => futureCauseError<dynamic>(testString1),
+          ),
+        ).catchError((e) => e);
 
-        final res2 = Future(() => callbackCompleter
-                .run<String>(() => futureCauseError<String>(testString2)))
-            .catchError((e, st) => e);
+        final res2 = Future(
+          () => callbackCompleter.run<String>(
+            () => futureCauseError<String>(testString2),
+          ),
+        ).catchError((e) => e);
 
         expect(await res1, '$testStringError:$testString1');
         expect(await res2, '$testStringError:$testString2');
