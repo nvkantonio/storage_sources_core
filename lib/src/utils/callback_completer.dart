@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 final class NoArgument {
   const NoArgument();
 
@@ -10,8 +12,18 @@ final class NoArgument {
   bool operator ==(Object other) => other is NoArgument;
 }
 
-final class _CompleterWithArgument<T> {
-  _CompleterWithArgument(this.equalityArg) : completer = Completer<T>();
+final class UniqueArgument {
+  const UniqueArgument();
+
+  @override
+  int get hashCode => super.hashCode;
+
+  @override
+  bool operator ==(Object other) => false;
+}
+
+final class CompleterWithArgument<T> {
+  CompleterWithArgument(this.equalityArg) : completer = Completer<T>();
 
   final Completer<T> completer;
   final dynamic equalityArg;
@@ -20,32 +32,35 @@ final class _CompleterWithArgument<T> {
 class CallbackCompleter<T> {
   CallbackCompleter();
 
-  _CompleterWithArgument? _completerWithArg;
+  @protected
+  @visibleForTesting
+  CompleterWithArgument? completerWithArg;
 
-  Completer? get _completer => _completerWithArg?.completer;
+  CompleterWithArgument? get currentCompleterWithArg => completerWithArg;
 
-  bool get isInProgress => _completer != null && !_completer!.isCompleted;
+  bool get isInProgress =>
+      completerWithArg != null && !completerWithArg!.completer.isCompleted;
 
-  Future? get future => _completer?.future;
-
-  Future<R> run<R extends T>(FutureOr<R> Function() callback,
-      {dynamic equalityArg = const NoArgument()}) {
-    final currentCompleterWithArg = _completerWithArg;
+  Future<R> run<R extends T>(
+    FutureOr<R> Function() callback, {
+    dynamic equalityArg = const NoArgument(),
+  }) {
+    final currentCompleterWithArg = completerWithArg;
 
     if (currentCompleterWithArg == null) {
-      final newCompleterWithArg = _CompleterWithArgument<R>(equalityArg);
-      _completerWithArg = newCompleterWithArg;
+      final newCompleterWithArg = CompleterWithArgument<R>(equalityArg);
+      completerWithArg = newCompleterWithArg;
 
       return _runCompleter(callback, newCompleterWithArg);
     }
 
-    if (currentCompleterWithArg is _CompleterWithArgument<R> &&
+    if (currentCompleterWithArg is CompleterWithArgument<R> &&
         equalityArg == currentCompleterWithArg.equalityArg) {
       return currentCompleterWithArg.completer.future;
     }
 
-    final newCompleterWithArg = _CompleterWithArgument<R>(equalityArg);
-    _completerWithArg = newCompleterWithArg;
+    final newCompleterWithArg = CompleterWithArgument<R>(equalityArg);
+    completerWithArg = newCompleterWithArg;
 
     final currentCompleterFuture =
         Future<dynamic>(() => currentCompleterWithArg.completer.future);
@@ -57,8 +72,11 @@ class CallbackCompleter<T> {
     );
   }
 
+  bool completerIdenticalTo(CallbackCompleter other) =>
+      identical(this.completerWithArg, other.completerWithArg);
+
   Future<R> _runCompleter<R extends T>(FutureOr<R> Function() callback,
-      _CompleterWithArgument<R> completerWithArg) {
+      CompleterWithArgument<R> completerWithArg) {
     final completer = completerWithArg.completer;
 
     Future(
@@ -71,8 +89,8 @@ class CallbackCompleter<T> {
         }
       },
     ).whenComplete(() {
-      if (identical(completerWithArg, _completerWithArg)) {
-        _completerWithArg = null;
+      if (identical(completerWithArg, this.completerWithArg)) {
+        this.completerWithArg = null;
       }
     });
 
