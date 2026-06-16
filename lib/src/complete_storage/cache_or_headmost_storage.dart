@@ -10,11 +10,18 @@ class CacheOrHeadmostStorageBehavior {
     this.doRunSecondIfFirstOk = true,
     this.deleteCacheOnError = true,
     this.updateCacheIfNotEqual = true,
+    this.doRunSecondIfFirstEqual = true,
+    this.yieldUndefinedIfHaveOkResponse = true,
   });
 
-  final bool runTasksImmediately;
   final bool runCacheSourceFirst;
+  final bool yieldUndefinedIfHaveOkResponse;
+
   final bool doRunSecondIfFirstOk;
+  final bool doRunSecondIfFirstEqual;
+
+  final bool runTasksImmediately;
+
   final bool deleteCacheOnError;
   final bool updateCacheIfNotEqual;
 }
@@ -63,35 +70,82 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
       headmostSourceResponseFuture = headmostSource.fetchData().future;
     }
 
+    Future<SR<T>> handleCacheSource() =>
+        _handleSourceResponseFuture(cacheSourceResponseFuture);
+
+    Future<SR<T>> handleHeadmostSource() =>
+        _handleSourceResponseFuture(headmostSourceResponseFuture);
+
     // Define order by behavior
-    final invertOrder = !behavior.runCacheSourceFirst;
-
-    bool doRunHeadmostSource() => !(invertOrder &&
-        !behavior.doRunSecondIfFirstOk &&
-        cacheSourceResponse is OkStorageSourceResult);
-
-    bool doRunInverted() =>
-        invertOrder &&
-        !(!behavior.doRunSecondIfFirstOk &&
-            headmostSourceResponse is OkStorageSourceResult);
+    final inverted = !behavior.runCacheSourceFirst;
+    final checkRunSecond = !behavior.doRunSecondIfFirstOk;
+    final checkEqual = !behavior.doRunSecondIfFirstEqual;
+    final checkUndef = !behavior.yieldUndefinedIfHaveOkResponse;
 
     // Process runner
-    if (!invertOrder) {
-      yield cacheSourceResponse = await _handleSourceResponseFuture(
-        cacheSourceResponseFuture,
-      );
+    final bool yieldFirst;
+    final bool yieldSecond;
+
+    if (!inverted) {
+      cacheSourceResponse = await handleCacheSource();
+
+      yieldFirst = cacheSourceResponse is ErrorStorageSourceResult ||
+          !(checkUndef && cacheSourceResponse is UndefinedStorageSourceResult);
+
+      if (yieldFirst) {
+        yield cacheSourceResponse;
+      }
+
+      final runSecond =
+          checkRunSecond && cacheSourceResponse is OkStorageSourceResult;
+
+      if (runSecond) {
+        headmostSourceResponse = await handleHeadmostSource();
+
+        yieldSecond = headmostSourceResponse is ErrorStorageSourceResult ||
+            !(checkUndef &&
+                    headmostSourceResponse is UndefinedStorageSourceResult) &&
+                !(checkEqual &&
+                    cacheSourceResponse.value == headmostSourceResponse.value);
+
+        if (yieldSecond) {
+          yield headmostSourceResponse;
+        }
+      } else {
+        yieldSecond = false;
+      }
+    } else {
+      headmostSourceResponse = await handleHeadmostSource();
+
+      yieldFirst = headmostSourceResponse is ErrorStorageSourceResult ||
+          !(checkUndef &&
+              headmostSourceResponse is UndefinedStorageSourceResult);
+
+      if (yieldFirst) {
+        yield headmostSourceResponse;
+      }
+
+      final runSecond =
+          checkRunSecond && headmostSourceResponse is OkStorageSourceResult;
+
+      if (runSecond) {
+        cacheSourceResponse = await handleCacheSource();
+
+        yieldSecond = cacheSourceResponse is ErrorStorageSourceResult ||
+            !(checkUndef &&
+                    cacheSourceResponse is UndefinedStorageSourceResult) &&
+                !(checkEqual && cacheSourceResponse == cacheSourceResponse);
+
+        if (yieldSecond) {
+          yield cacheSourceResponse;
+        }
+      } else {
+        yieldSecond = false;
+      }
     }
 
-    if (doRunHeadmostSource()) {
-      yield headmostSourceResponse = await _handleSourceResponseFuture(
-        headmostSourceResponseFuture,
-      );
-    }
-
-    if (doRunInverted()) {
-      yield cacheSourceResponse = await _handleSourceResponseFuture(
-        cacheSourceResponseFuture,
-      );
+    if (!(yieldFirst || yieldSecond)) {
+      yield UndefinedStorageSourceResult<T>();
     }
 
     /// Post process tasks
