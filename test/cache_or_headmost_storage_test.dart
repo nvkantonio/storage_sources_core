@@ -19,7 +19,7 @@ void main() {
       headmostSource: CallbackStorageSource(() => callbackValue),
       behavior: CacheOrHeadmostStorageBehavior(
         runTasksImmediately: true,
-        runHeadmostSourceFirst: true,
+        runCacheSourceFirst: true,
         doRunSecondIfFirstOk: true,
         deleteCacheOnError: true,
         updateCacheIfNotEqual: true,
@@ -91,7 +91,7 @@ void main() {
       ),
       behavior: CacheOrHeadmostStorageBehavior(
         runTasksImmediately: true,
-        runHeadmostSourceFirst: true,
+        runCacheSourceFirst: true,
         doRunSecondIfFirstOk: true,
         deleteCacheOnError: true,
         updateCacheIfNotEqual: true,

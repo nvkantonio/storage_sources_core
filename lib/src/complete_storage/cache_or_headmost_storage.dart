@@ -6,14 +6,14 @@ import '../../misc.dart';
 class CacheOrHeadmostStorageBehavior {
   const CacheOrHeadmostStorageBehavior({
     this.runTasksImmediately = true,
-    this.runHeadmostSourceFirst = true,
+    this.runCacheSourceFirst = true,
     this.doRunSecondIfFirstOk = true,
     this.deleteCacheOnError = true,
     this.updateCacheIfNotEqual = true,
   });
 
   final bool runTasksImmediately;
-  final bool runHeadmostSourceFirst;
+  final bool runCacheSourceFirst;
   final bool doRunSecondIfFirstOk;
   final bool deleteCacheOnError;
   final bool updateCacheIfNotEqual;
@@ -64,7 +64,7 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
     }
 
     // Define order by behavior
-    final invertOrder = !behavior.runHeadmostSourceFirst;
+    final invertOrder = !behavior.runCacheSourceFirst;
 
     bool doRunHeadmostSource() => !(invertOrder &&
         !behavior.doRunSecondIfFirstOk &&
