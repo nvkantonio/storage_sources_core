@@ -33,6 +33,7 @@ abstract interface class CacheOrHeadmostStorageSources<T>
     implements StorageSources {
   StorageSource<T> get headmostSource;
   ModifiableDataStorageSource<T> get cacheSource;
+  bool Function(T cache, T headmost)? get equalityCheck;
 }
 
 abstract class _CacheOrHeadmostStorage<T>
@@ -46,6 +47,7 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
     required this.cacheSource,
     required this.headmostSource,
     this.behavior = const CacheOrHeadmostStorageBehavior(),
+    this.equalityCheck,
   });
 
   final CacheOrHeadmostStorageBehavior behavior;
@@ -57,12 +59,31 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
   final StorageSource<T> headmostSource;
 
   @override
+  final bool Function(T cache, T headmost)? equalityCheck;
+
+  @override
   Stream<SR<T>> dataStream() async* {
     final Future<SR<T>> cacheSourceResponseFuture;
     final Future<SR<T>> headmostSourceResponseFuture;
 
     SR<T>? cacheSourceResponse;
     SR<T>? headmostSourceResponse;
+
+    bool equalityCheck() {
+      if (cacheSourceResponse?.isOk != true ||
+          headmostSourceResponse?.isOk != true) {
+        return false;
+      }
+
+      final cache = cacheSourceResponse!.value;
+      final headmost = headmostSourceResponse!.value;
+
+      if (this.equalityCheck != null) {
+        return this.equalityCheck!.call(cache, headmost);
+      } else {
+        return cache == headmost;
+      }
+    }
 
     // Processes initialization
     if (behavior.runTasksImmediately) {
@@ -108,8 +129,7 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
         yieldSecond = headmostSourceResponse is ErrorStorageSourceResult ||
             !(checkUndef &&
                     headmostSourceResponse is UndefinedStorageSourceResult) &&
-                !(checkEqual &&
-                    cacheSourceResponse.value == headmostSourceResponse.value);
+                !(checkEqual && equalityCheck());
 
         if (yieldSecond) {
           yield headmostSourceResponse;
@@ -137,7 +157,7 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
         yieldSecond = cacheSourceResponse is ErrorStorageSourceResult ||
             !(checkUndef &&
                     cacheSourceResponse is UndefinedStorageSourceResult) &&
-                !(checkEqual && cacheSourceResponse == cacheSourceResponse);
+                !(checkEqual && equalityCheck());
 
         if (yieldSecond) {
           yield cacheSourceResponse;
@@ -172,14 +192,11 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
 
     if (doTryUpdate) {
       try {
-        final headmostValue = headmostSourceResponse.value;
-
         final doUpdate = !cacheSourceResponse.isOk ||
-            (behavior.updateCacheIfNotEqual &&
-                cacheSourceResponse.value != headmostValue);
+            (behavior.updateCacheIfNotEqual && !equalityCheck());
 
         if (doUpdate) {
-          await cacheSource.update(headmostValue);
+          await cacheSource.update(headmostSourceResponse.value);
         }
       } catch (e, st) {
         yield OtherErrorStorageSourceResult(e, stackTrace: st);
