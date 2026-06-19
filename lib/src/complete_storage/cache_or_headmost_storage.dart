@@ -5,25 +5,28 @@ import '../../misc.dart';
 
 class CacheOrHeadmostStorageBehavior {
   const CacheOrHeadmostStorageBehavior({
-    this.runTasksImmediately = true,
     this.runCacheSourceFirst = true,
     this.doRunSecondIfFirstOk = true,
-    this.deleteCacheOnError = true,
+    this.runTasksImmediately = true,
+    this.doTryUpdateCache = true,
     this.updateCacheIfNotEqual = true,
-    this.doRunSecondIfFirstEqual = true,
+    this.deleteCacheOnError = true,
+    this.yieldSecondIfFirstEqual = true,
     this.yieldUndefinedIfHaveOkResponse = true,
   });
 
   final bool runCacheSourceFirst;
-  final bool yieldUndefinedIfHaveOkResponse;
 
   final bool doRunSecondIfFirstOk;
-  final bool doRunSecondIfFirstEqual;
 
   final bool runTasksImmediately;
 
-  final bool deleteCacheOnError;
+  final bool doTryUpdateCache;
   final bool updateCacheIfNotEqual;
+  final bool deleteCacheOnError;
+
+  final bool yieldUndefinedIfHaveOkResponse;
+  final bool yieldSecondIfFirstEqual;
 }
 
 abstract interface class CacheOrHeadmostStorageSources<T>
@@ -79,7 +82,7 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
     // Define order by behavior
     final inverted = !behavior.runCacheSourceFirst;
     final checkRunSecond = !behavior.doRunSecondIfFirstOk;
-    final checkEqual = !behavior.doRunSecondIfFirstEqual;
+    final checkEqual = !behavior.yieldSecondIfFirstEqual;
     final checkUndef = !behavior.yieldUndefinedIfHaveOkResponse;
 
     // Process runner
@@ -153,7 +156,7 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
         cacheSourceResponse != null &&
         cacheSourceResponse.isError;
 
-    final doTryUpdate = behavior.updateCacheIfNotEqual &&
+    final doTryUpdate = behavior.doTryUpdateCache &&
         cacheSourceResponse != null &&
         headmostSourceResponse != null &&
         headmostSourceResponse.isOk;
@@ -172,7 +175,8 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
         final headmostValue = headmostSourceResponse.value;
 
         final doUpdate = !cacheSourceResponse.isOk ||
-            cacheSourceResponse.value != headmostValue;
+            (behavior.updateCacheIfNotEqual &&
+                cacheSourceResponse.value != headmostValue);
 
         if (doUpdate) {
           await cacheSource.update(headmostValue);
