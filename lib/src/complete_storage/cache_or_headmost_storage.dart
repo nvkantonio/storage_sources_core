@@ -3,6 +3,18 @@ import 'dart:async';
 import '../../storage_sources_core.dart';
 import '../../misc.dart';
 
+typedef EqualityCheckCallback<T> = bool Function(T cache, T headmost);
+
+typedef UpdateActionCallback<T> = FutureOr Function(
+  StorageSourceResult<T> cacheSourceResult,
+  OkStorageSourceResult<T> headmostSourceResult,
+);
+
+typedef DeleteActionCallback<T> = FutureOr Function(
+  StorageSourceResult<T> cacheSourceResult,
+  StorageSourceResult<T>? headmostSourceResult,
+);
+
 class CacheOrHeadmostStorageBehavior {
   const CacheOrHeadmostStorageBehavior({
     this.runCacheSourceFirst = true,
@@ -33,7 +45,6 @@ abstract interface class CacheOrHeadmostStorageSources<T>
     implements StorageSources {
   StorageSource<T> get headmostSource;
   ModifiableDataStorageSource<T> get cacheSource;
-  bool Function(T cache, T headmost)? get equalityCheck;
 }
 
 abstract class _CacheOrHeadmostStorage<T>
@@ -48,6 +59,8 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
     required this.headmostSource,
     this.behavior = const CacheOrHeadmostStorageBehavior(),
     this.equalityCheck,
+    this.updateAction,
+    this.deleteAction,
   });
 
   final CacheOrHeadmostStorageBehavior behavior;
@@ -58,8 +71,9 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
   @override
   final StorageSource<T> headmostSource;
 
-  @override
-  final bool Function(T cache, T headmost)? equalityCheck;
+  final EqualityCheckCallback<T>? equalityCheck;
+  final UpdateActionCallback<T>? updateAction;
+  final DeleteActionCallback<T>? deleteAction;
 
   @override
   Stream<SR<T>> dataStream() async* {
@@ -183,7 +197,7 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
 
     if (doRunDelete) {
       try {
-        await cacheSource.delete();
+        await deleteCache(cacheSourceResponse, headmostSourceResponse);
       } catch (e, st) {
         yield OtherErrorStorageSourceResult(e, stackTrace: st);
         return;
@@ -196,13 +210,32 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
             (behavior.updateCacheIfNotEqual && !equalityCheck());
 
         if (doUpdate) {
-          await cacheSource.update(headmostSourceResponse.value);
+          await updateCache(cacheSourceResponse,
+              headmostSourceResponse as OkStorageSourceResult<T>);
         }
       } catch (e, st) {
         yield OtherErrorStorageSourceResult(e, stackTrace: st);
         return;
       }
     }
+  }
+
+  FutureOr<void> updateCache(StorageSourceResult<T> cacheSourceResult,
+      OkStorageSourceResult<T> headmostSourceResult) {
+    if (updateAction != null) {
+      return updateAction!.call(cacheSourceResult, headmostSourceResult);
+    }
+
+    return cacheSource.update(headmostSourceResult.value);
+  }
+
+  FutureOr<void> deleteCache(StorageSourceResult<T> cacheSourceResult,
+      StorageSourceResult<T>? headmostSourceResult) {
+    if (updateAction != null) {
+      return deleteAction!.call(cacheSourceResult, headmostSourceResult);
+    }
+
+    return cacheSource.delete();
   }
 
   Future<SR<T>> _handleSourceResponseFuture(
