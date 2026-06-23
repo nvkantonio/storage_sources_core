@@ -14,8 +14,6 @@ export 'src/storage_source/keyed_data_storage_source_proxy.dart';
 
 export 'src/utils/storage_source_result.dart';
 
-export 'src/storage/storage_streamed_get_data_latest_mixin.dart';
-
 export 'src/storage/single_source_storage_base.dart';
 export 'src/storage_sources/single_source_storage_sources.dart';
 

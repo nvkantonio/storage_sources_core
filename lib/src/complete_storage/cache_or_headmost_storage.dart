@@ -48,7 +48,7 @@ abstract interface class CacheOrHeadmostStorageSources<T>
 }
 
 abstract class _CacheOrHeadmostStorage<T>
-    with StorageStreamedGetDataLatestMixin<T>
+    with StorageStreamedFetchDataFirstOkResMixin<T>
     implements CacheOrHeadmostStorageSources<T> {
   const _CacheOrHeadmostStorage();
 }
