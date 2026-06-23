@@ -8,12 +8,12 @@ typedef ActionOnUndefined<T> = Function(UndefinedStorageSourceResult<T> result);
 
 mixin StorageStreamedFetchDataFirstOkResMixin<T> implements StorageStreamed<T> {
   @override
-  FutureOr<SR<T>> fetchData([
+  FutureOr<SR<T>> fetchData({
     ActionOnOk<T>? actionOnOk,
     ActionOnError<T>? actionOnError,
     ActionOnUndefined<T>? actionOnUndefined,
     Function(Object e, StackTrace st)? onUnhandledError,
-  ]) async {
+  }) async {
     final completer = Completer<SR<T>>.sync();
 
     ErrorStorageSourceResult<T>? latestError;
