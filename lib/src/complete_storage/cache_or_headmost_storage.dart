@@ -118,38 +118,37 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
         _handleSourceResponseFuture(headmostSourceResponseFuture);
 
     // Define order by behavior
-    final runCacheSourceFirst = !behavior.runCacheSourceFirst;
-    final doRunSecondIfFirstOk = !behavior.doRunSecondIfFirstOk;
-    final yieldSecondIfFirstEqual = !behavior.yieldSecondIfFirstEqual;
-    final yieldUndefined = !behavior.yieldUndefinedIfHaveOkResponse;
+    final doRunSecondIfFirstOk = behavior.doRunSecondIfFirstOk;
 
-    bool checkUndef(StorageSourceResult<T> res) =>
-        yieldUndefined || !res.isUndefined;
+    bool doYieldUndef(StorageSourceResult<T> res) =>
+        behavior.yieldUndefinedIfHaveOkResponse || !res.isUndefined;
 
-    bool checkUndefAndEquality(StorageSourceResult<T> res) =>
-        checkUndef(res) && (yieldSecondIfFirstEqual || !equalityCheck());
+    bool doYieldEquality() =>
+        behavior.yieldSecondIfFirstEqual || !equalityCheck();
+
+    bool doYieldUndefAndEquality(StorageSourceResult<T> res) =>
+        doYieldUndef(res) && doYieldEquality();
 
     // Process runner
     final bool yieldFirst;
     final bool yieldSecond;
 
-    if (runCacheSourceFirst) {
+    if (behavior.runCacheSourceFirst) {
       cacheSourceResponse = await handleCacheSource();
 
-      yieldFirst =
-          cacheSourceResponse.isError || checkUndef(cacheSourceResponse);
+      yieldFirst = doYieldUndef(cacheSourceResponse);
 
       if (yieldFirst) {
         yield cacheSourceResponse;
       }
 
-      final runSecond = doRunSecondIfFirstOk || cacheSourceResponse.isOk;
+      final runSecond = doRunSecondIfFirstOk || !cacheSourceResponse.isOk;
 
       if (runSecond) {
         headmostSourceResponse = await handleHeadmostSource();
 
         yieldSecond = headmostSourceResponse.isError ||
-            checkUndefAndEquality(headmostSourceResponse);
+            doYieldUndefAndEquality(headmostSourceResponse);
 
         if (yieldSecond) {
           yield headmostSourceResponse;
@@ -160,20 +159,19 @@ class CacheOrHeadmostStorage<T> extends _CacheOrHeadmostStorage<T> {
     } else {
       headmostSourceResponse = await handleHeadmostSource();
 
-      yieldFirst =
-          headmostSourceResponse.isError || checkUndef(headmostSourceResponse);
+      yieldFirst = doYieldUndef(headmostSourceResponse);
 
       if (yieldFirst) {
         yield headmostSourceResponse;
       }
 
-      final runSecond = doRunSecondIfFirstOk || headmostSourceResponse.isOk;
+      final runSecond = doRunSecondIfFirstOk || !headmostSourceResponse.isOk;
 
       if (runSecond) {
         cacheSourceResponse = await handleCacheSource();
 
         yieldSecond = cacheSourceResponse.isError ||
-            checkUndefAndEquality(cacheSourceResponse);
+            doYieldUndefAndEquality(cacheSourceResponse);
 
         if (yieldSecond) {
           yield cacheSourceResponse;
