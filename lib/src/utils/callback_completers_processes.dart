@@ -31,7 +31,7 @@ class CallbackCompletersProcesses<T> {
       final completer = CallbackCompleter<T>();
       completersHashMap[processHash] = completer;
 
-      return completer.run(callback).whenComplete(
+      return completer.run(callback, equalityArg: equalityArg).whenComplete(
         () {
           if (completersHashMap[processHash]?.isInProgress == false) {
             completersHashMap.remove(processHash);
