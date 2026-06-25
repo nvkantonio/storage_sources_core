@@ -14,30 +14,29 @@ class CallbackCompletersProcesses<T> {
   CallbackCompleter<T>? completerOfProcess(Object processLink) =>
       completersHashMap[processLink.hashCode];
 
-  Future<R> run<R extends T>(FutureOr<R> Function() callback,
-      {required Object processLink, dynamic equalityArg = const NoArgument()}) {
+  Future<R> run<R extends T>(
+    FutureOr<R> Function() callback, {
+    required Object processLink,
+    dynamic equalityArg = const NoArgument(),
+  }) {
     final processHash = processLink.hashCode;
-    final completer = completersHashMap[processHash];
+    final hashMapCompleter = completersHashMap[processHash];
 
-    if (completer != null) {
-      return completer.run(callback).whenComplete(
-        () {
-          if (completersHashMap[processHash]?.isInProgress == false) {
-            completersHashMap.remove(processHash);
-          }
-        },
-      );
+    final CallbackCompleter<T> completer;
+
+    if (hashMapCompleter != null) {
+      completer = hashMapCompleter;
     } else {
-      final completer = CallbackCompleter<T>();
+      completer = CallbackCompleter<T>();
       completersHashMap[processHash] = completer;
-
-      return completer.run(callback, equalityArg: equalityArg).whenComplete(
-        () {
-          if (completersHashMap[processHash]?.isInProgress == false) {
-            completersHashMap.remove(processHash);
-          }
-        },
-      );
     }
+
+    return completer.run(callback, equalityArg: equalityArg).whenComplete(
+      () {
+        if (completersHashMap[processHash]?.isInProgress == false) {
+          completersHashMap.remove(processHash);
+        }
+      },
+    );
   }
 }
