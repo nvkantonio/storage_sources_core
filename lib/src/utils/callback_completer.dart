@@ -28,8 +28,7 @@ class CallbackCompleter<T> {
 
   CompleterWithArgument? get currentCompleterWithArg => completerWithArg;
 
-  bool get isInProgress =>
-      completerWithArg != null && !completerWithArg!.completer.isCompleted;
+  bool get isInProgress => completerWithArg != null;
 
   Future<R> run<R extends T>(
     FutureOr<R> Function() callback, {
@@ -65,8 +64,10 @@ class CallbackCompleter<T> {
   bool completerIdenticalTo(CallbackCompleter other) =>
       identical(this.completerWithArg, other.completerWithArg);
 
-  Future<R> _runCompleter<R extends T>(FutureOr<R> Function() callback,
-      CompleterWithArgument<R> completerWithArg) {
+  Future<R> _runCompleter<R extends T>(
+    FutureOr<R> Function() callback,
+    CompleterWithArgument<R> completerWithArg,
+  ) {
     final completer = completerWithArg.completer;
 
     Future(
