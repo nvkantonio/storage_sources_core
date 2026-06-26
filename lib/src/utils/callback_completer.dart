@@ -9,16 +9,6 @@ final class NoArgument {
   int get hashCode => super.hashCode;
 
   @override
-  bool operator ==(Object other) => other is NoArgument;
-}
-
-final class UniqueArgument {
-  const UniqueArgument();
-
-  @override
-  int get hashCode => super.hashCode;
-
-  @override
   bool operator ==(Object other) => false;
 }
 
