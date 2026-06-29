@@ -41,6 +41,7 @@ void main() {
       expect(
         await callbackCompleter.run(
           () => futureTestString(testString1),
+          equalityArg: null,
         ),
         testString1,
       );
@@ -50,6 +51,7 @@ void main() {
       expect(
         await callbackCompleter.run(
           () => futureTestString(testString2),
+          equalityArg: null,
         ),
         testString2,
       );
@@ -63,11 +65,13 @@ void main() {
       final res1 = Future(
         () => callbackCompleter.run(
           () => futureTestString(testString1),
+          equalityArg: null,
         ),
       );
       final res2 = Future(
         () => callbackCompleter.run(
           () => futureTestString(testString2),
+          equalityArg: null,
         ),
       );
 
@@ -87,16 +91,19 @@ void main() {
       final res1 = Future(
         () => callbackCompleter.run(
           () => futureTestString(testString1),
+          equalityArg: null,
         ),
       );
       final res2 = Future(
         () => callbackCompleter.run(
           () => futureTestString(testString2),
+          equalityArg: null,
         ),
       );
       final res3 = Future(
         () => callbackCompleter.run(
           () => futureTestString(testString3),
+          equalityArg: null,
         ),
       );
 
@@ -110,6 +117,7 @@ void main() {
       final res4 = Future(
         () => callbackCompleter.run(
           () => futureTestString(testString4),
+          equalityArg: null,
         ),
       );
 
@@ -133,12 +141,14 @@ void main() {
       final res1 = Future(
         () => callbackCompleter.run(
           () => futureTestString(testString1),
+          equalityArg: null,
         ),
       ).catchError((e, st) => '$e:$testString1');
 
       final res2 = Future(
         () => callbackCompleter.run(
           () => futureTestString(testString2),
+          equalityArg: null,
         ),
       ).catchError((e, st) => '$e:$testString2');
 
@@ -159,12 +169,14 @@ void main() {
       final res1 = Future(
         () => callbackCompleter.run(
           () => futureCauseErrorString(testString1),
+          equalityArg: null,
         ),
       ).catchError((e, st) => e);
 
       final res2 = Future(
         () => callbackCompleter.run(
           () => futureCauseErrorString(testString2),
+          equalityArg: null,
         ),
       ).catchError((e, st) => e);
 
@@ -425,6 +437,7 @@ void main() {
         expect(
           await callbackCompleter.run(
             () => futureTestString(testString1),
+            equalityArg: null,
           ),
           testString1,
         );
@@ -432,6 +445,7 @@ void main() {
         expect(
           await callbackCompleter.run<String>(
             () => futureTestString(testString2),
+            equalityArg: null,
           ),
           testString2,
         );
@@ -439,6 +453,7 @@ void main() {
         expect(
           await callbackCompleter.run<int>(
             () => futureTest(3),
+            equalityArg: null,
           ),
           3,
         );
@@ -452,16 +467,19 @@ void main() {
         final res1String = Future(
           () => callbackCompleter.run<String>(
             () => futureTestString(testString1),
+            equalityArg: null,
           ),
         );
         final res2AutoTyped = Future(
           () => callbackCompleter.run(
             () => futureTestString(testString2),
+            equalityArg: null,
           ),
         );
         final res3String = Future(
           () => callbackCompleter.run<String>(
             () => futureTestString(testString2),
+            equalityArg: null,
           ),
         );
 
@@ -483,16 +501,19 @@ void main() {
         final res1Dynamic = Future(
           () => callbackCompleter.run<dynamic>(
             () => futureTest<dynamic>(testString1),
+            equalityArg: null,
           ),
         );
         final res2String = Future(
           () => callbackCompleter.run<String>(
             () => futureTest<String>(testString2),
+            equalityArg: null,
           ),
         );
         final res3Dynamic = Future(
           () => callbackCompleter.run<dynamic>(
             () => futureTest<String>(testString2),
+            equalityArg: null,
           ),
         );
 
@@ -521,12 +542,14 @@ void main() {
         final res1Dynamic = Future(
           () => callbackCompleter.run<dynamic>(
             () => futureTest<dynamic>(testString1),
+            equalityArg: null,
           ),
         ).catchError((e) => '$e:$testString1');
 
         final res2String = Future(
           () => callbackCompleter.run<String>(
             () => futureTest<String>(testString2),
+            equalityArg: null,
           ),
         ).catchError((e) => '$e:$testString2');
 
@@ -542,12 +565,14 @@ void main() {
         final res1Dynamic = Future(
           () => callbackCompleter.run<dynamic>(
             () => futureCauseError<dynamic>(testString1),
+            equalityArg: null,
           ),
         ).catchError((e) => e);
 
         final res2String = Future(
           () => callbackCompleter.run<String>(
             () => futureCauseError<String>(testString2),
+            equalityArg: null,
           ),
         ).catchError((e) => e);
 

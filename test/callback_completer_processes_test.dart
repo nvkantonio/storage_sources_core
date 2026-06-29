@@ -37,6 +37,7 @@ void main() {
           await callbackCompletersProcesses.run(
             () => futureTestString('$testString1$processLink1'),
             processLink: processLink1,
+            equalityArg: null,
           ),
           '$testString1$processLink1');
 
@@ -46,6 +47,7 @@ void main() {
           await callbackCompletersProcesses.run(
             () => futureTestString('$testString2$processLink2'),
             processLink: processLink2,
+            equalityArg: null,
           ),
           '$testString2$processLink2');
 
@@ -55,6 +57,7 @@ void main() {
           await callbackCompletersProcesses.run(
             () => futureTestString('$testString3$processLink1'),
             processLink: processLink1,
+            equalityArg: null,
           ),
           '$testString3$processLink1');
 
@@ -71,6 +74,7 @@ void main() {
         () => callbackCompletersProcesses.run(
           () => futureTestString('$testString1$processLink1'),
           processLink: processLink1,
+          equalityArg: null,
         ),
       );
 
@@ -78,6 +82,7 @@ void main() {
         () => callbackCompletersProcesses.run(
           () => futureTestString('$testString2$processLink2'),
           processLink: processLink2,
+          equalityArg: null,
         ),
       );
 
@@ -85,6 +90,7 @@ void main() {
         () => callbackCompletersProcesses.run(
           () => futureTestString('$testString3$processLink1'),
           processLink: processLink1,
+          equalityArg: null,
         ),
       );
 
@@ -122,6 +128,7 @@ void main() {
         () => callbackCompletersProcesses.run(
           () => futureTestString('$testString1$processLink1'),
           processLink: processLink1,
+          equalityArg: null,
         ),
       );
 
@@ -129,6 +136,7 @@ void main() {
         () => callbackCompletersProcesses.run(
           () => futureTestString('$testString2$processLink2'),
           processLink: processLink2,
+          equalityArg: null,
         ),
       );
 
@@ -136,6 +144,7 @@ void main() {
         () => callbackCompletersProcesses.run(
           () => futureTestString('$testString3$processLink1'),
           processLink: processLink1,
+          equalityArg: null,
         ),
       );
 
@@ -192,6 +201,7 @@ void main() {
         () => callbackCompletersProcesses.run(
           () => futureCauseErrorString('$testString1$processLink1'),
           processLink: processLink1,
+          equalityArg: null,
         ),
       ).catchError((e, st) => e);
 
@@ -199,6 +209,7 @@ void main() {
         () => callbackCompletersProcesses.run(
           () => futureCauseErrorString('$testString2$processLink2'),
           processLink: processLink2,
+          equalityArg: null,
         ),
       ).catchError((e, st) => e);
 
@@ -206,6 +217,7 @@ void main() {
         () => callbackCompletersProcesses.run(
           () => futureCauseErrorString('$testString3$processLink1'),
           processLink: processLink1,
+          equalityArg: null,
         ),
       ).catchError((e, st) => e);
 
