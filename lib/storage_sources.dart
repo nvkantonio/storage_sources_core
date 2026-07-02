@@ -7,6 +7,7 @@ export 'src/complete_storage_source/network_source.dart';
 export 'src/storage_source/cache_storage_source.dart';
 export 'src/storage_source/database_storage_source.dart';
 export 'src/storage_source/file_storage_source.dart';
+export 'src/complete_storage_source/file_bytes_storage_source.dart';
 
 export 'src/complete_storage/single_source_storage.dart';
 export 'src/complete_storage/cache_or_headmost_storage.dart';
