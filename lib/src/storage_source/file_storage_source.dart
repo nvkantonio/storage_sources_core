@@ -5,8 +5,6 @@ import 'package:storage_sources_core/storage_sources_core.dart';
 
 abstract interface class FileStorageSource<T>
     implements ModifiableDataStorageSource<T> {
-  Future<int> writeFileAndUpdate(String filePath, List<int> bytes);
-
   @protected
   Future<SR<T>> fileResultFromPath(String path);
 
@@ -18,4 +16,11 @@ abstract interface class FileStorageSource<T>
 
   @protected
   FutureOr<void> deleteFile(T file);
+}
+
+abstract interface class FileWithBytesStorageSource<T>
+    implements FileStorageSource<T> {
+  FutureOr<int> writeFileAndUpdate(String filePath, List<int> bytes);
+
+  FutureOr<List<int>> fileBytes(T file);
 }
